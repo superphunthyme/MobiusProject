@@ -21,3 +21,9 @@ __pycache__
 
 # Binary
 main
+
+# PDFs
+*pdf
+
+# Plan for project
+plan.rst
