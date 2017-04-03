@@ -1,0 +1,88 @@
+# Create a dependency between shaders and build
+file(GLOB VERTEX_SHADER "${CMAKE_CURRENT_SOURCE_DIR}/*.vs")
+file(GLOB FRAGMENT_SHADER "${CMAKE_CURRENT_SOURCE_DIR}/*.fs")
+foreach (VS_SOURCE_PATH ${VERTEX_SHADER})
+  get_filename_component(VS_FILE_NAME ${VS_SOURCE_PATH} NAME)
+  message("Vertex shader: ${VS_FILE_NAME}")
+  configure_file(${VS_SOURCE_PATH} "${CMAKE_CURRENT_BINARY_DIR}/${VS_FILE_NAME}" COPYONLY)
+endforeach(VS_SOURCE_PATH)
+foreach (FS_SOURCE_PATH ${FRAGMENT_SHADER})
+  get_filename_component(FS_FILE_NAME ${FS_SOURCE_PATH} NAME)
+  message("Vertex shader: ${FS_FILE_NAME}")
+  configure_file(${FS_SOURCE_PATH} "${CMAKE_CURRENT_BINARY_DIR}/${FS_FILE_NAME}" COPYONLY)
+endforeach(FS_SOURCE_PATH)
+
+# Copy resource file over
+file(GLOB MESH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/*.obj")
+file(GLOB MATERIAL_FILES "${CMAKE_CURRENT_SOURCE_DIR}/*.mtl")
+file(GLOB IMAGE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/*.jpg")
+
+file(COPY ${MESH_FILES} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+file(COPY ${MATERIAL_FILES} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+file(COPY ${IMAGE_FILES} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+
+
+# In an ideal world we could just look for packages
+
+# OpenGL will be in the default dirs in windows but on other platforms
+# we may have to find paths ourselves
+find_package(OpenGL)
+if(NOT OPENGL_FOUND)
+    message(ERROR " OPENGL not found!")
+    # If this package does not exit, we guess
+    set(OPENGL_INCLUDE_DIRS)
+    set(OPENGL_LIBRARY_DIRS)
+    set(OPENGL_LIBRARIESS "GLU;GL")
+endif(NOT OPENGL_FOUND)
+include_directories(${OPENGL_INCLUDE_DIRS})
+link_directories(${OPENGL_LIBRARY_DIRS})
+# No definition as far as I know
+# add_definitions(${OPENGL_DEFINITIONS}) 
+target_link_libraries( ${project_name} ${OPENGL_LIBRARIES})
+message("Defs: ${OPENGL_DEFINITIONS}")
+
+
+
+# Try the same for glew 
+find_package(GLEW)
+if(NOT GLEW_FOUND)
+    message(ERROR " GLEW not found!")
+    # If this package does not exit, we guess
+    set(GLEW_INCLUDE_DIRS)
+    set(GLEW_LIBRARY_DIRS)
+    set(GLEW_LIBRARIESS "GLEW")
+endif(NOT GLEW_FOUND)
+# add include/library directory if package freeglut provides it
+include_directories(${GLEW_INCLUDE_DIRS})
+link_directories(${GLEW_LIBRARY_DIRS})
+# message("GLEW: ${GLEW_DEFINITIONS}")
+# add_definitions(${GLEW_DEFINITIONS})
+target_link_libraries( ${project_name} ${GLEW_LIBRARIES})
+
+
+find_package(FreeGlut)
+# add include/library directory if package freeglut provides it
+if(NOT FREEGLUT_FOUND)
+  message(ERROR " FREEGLUT not found!")
+  set(FREEGLUT_INCLUDE_DIRS)
+  set(FREEGLUT_LIBRARY_DIRS)
+  set(FREEGLUT_LIBRARIES "freeglut")
+endif(NOT FREEGLUT_FOUND)
+include_directories(${FREEGLUT_INCLUDE_DIRS})
+link_directories(${FREEGLUT_LIBRARY_DIRS})
+# add_definitions(${FREEGLUT_DEFINITIONS})
+target_link_libraries( ${project_name} ${FREEGLUT_LIBRARIES})
+
+
+find_package(FreeImage)
+# add include/library directory if package freeimage provides it
+if(NOT FREEIMAGE_FOUND)
+  message(ERROR " FREEIMAGE not found!")
+  set(FREEIMAGE_INCLUDE_DIRS)
+  set(FREEIMAGE_LIBRARY_DIRS)
+  set(FREEIMAGE_LIBRARIES "freeimage")
+endif(NOT FREEIMAGE_FOUND)
+include_directories(${FREEIMAGE_INCLUDE_DIRS})
+link_directories(${FREEIMAGE_LIBRARY_DIRS})
+# add_definitions(${FREEIMAGE_DEFINITIONS})
+target_link_libraries( ${project_name} ${FREEIMAGE_LIBRARIES})

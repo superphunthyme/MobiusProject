@@ -1,0 +1,213 @@
+#define NOMINMAXS
+#include <cstdlib>
+#include <stack>
+#include <iostream>
+#include <GL/glew.h>
+#include <GL/glut.h>
+
+// glm types
+#define GLM_FORCE_RADIANS
+#include <glm/glm.hpp>
+// matrix manipulation
+#include <glm/gtc/matrix_transform.hpp>
+// value_ptr
+#include <glm/gtc/type_ptr.hpp>
+
+#include "shader.h"
+#include "sphere.h"
+#include "moebius.h"
+
+using namespace CSI4130;
+using std::cerr;
+using std::endl;
+
+
+namespace CSI4130 {
+
+// Window dimensions
+struct WindowSize {
+  GLfloat d_near;
+  GLfloat d_far;
+  GLint d_widthPixel;
+  GLfloat d_width;
+  GLint d_heightPixel;
+  GLfloat d_height;
+  bool d_perspective;
+  WindowSize() : d_near(1.0f), d_far(21.0f),
+    d_widthPixel(512), d_width(12.5f),
+    d_heightPixel(512), d_height(12.5f)
+  {
+  }
+};
+
+struct Transformations {
+  GLint locP;
+  GLint locVM;
+  GLint locMM; // per instance model matrix
+  Transformations() : locP(-1), locVM(-1), locMM(-1) {
+  }
+};
+
+struct Attributes {
+  GLint locPos;
+  GLint locColor;
+  Attributes() : locPos(-1), locColor(-1) {
+  }
+};
+
+/** Global variables */
+MoebiusStrip moebiusShape;
+Attributes g_attrib;
+WindowSize g_winSize;
+GLuint camera;
+Transformations g_tfm;
+
+
+void createMoebiusStrip(void) {
+}
+
+void init(void)
+{
+  glClearColor (0.0, 0.0, 0.0, 0.0);
+  glEnable( GL_DEPTH_TEST );
+  errorOut();
+
+  // Make sure that our shaders run
+  int major, minor;
+  getGlVersion( major, minor );
+  cerr << "Running OpenGL "<< major << "." << minor << endl;
+  if ( major < 3 || (major==3 && minor<3)) {
+    cerr << "No OpenGL 3.3 or higher" <<endl;
+    exit(-1);
+  }
+
+// Load shaders
+  vector<GLuint> sHandles;
+  GLuint handle;
+  Shader boxes;
+  if ( !boxes.load("lattice.vs", GL_VERTEX_SHADER )) {
+    boxes.installShader( handle, GL_VERTEX_SHADER );
+    Shader::compile( handle );
+    sHandles.push_back( handle );
+  }
+  if ( !boxes.load("lattice.fs", GL_FRAGMENT_SHADER )) {
+    boxes.installShader( handle, GL_FRAGMENT_SHADER );
+    Shader::compile( handle );
+    sHandles.push_back( handle );
+  }
+  cerr << "No of handles: " << sHandles.size() << endl;
+  GLuint program;
+  Shader::installProgram(sHandles, program);
+  errorOut();
+
+  // Activate program in order to be able to get uniform and attribute locations
+  glUseProgram(program);
+  errorOut();
+  // vertex attributes
+  g_attrib.locPos = glGetAttribLocation(program, "position");
+  g_attrib.locColor = glGetAttribLocation(program, "color");
+  // transform uniforms and attributes
+  g_tfm.locMM = glGetAttribLocation( program, "ModelMatrix");
+  g_tfm.locVM = glGetUniformLocation( program, "ViewMatrix");
+  g_tfm.locP = glGetUniformLocation( program, "ProjectionMatrix");
+  errorOut();
+
+  glm::mat4 Projection = glm::ortho( -g_winSize.d_width/2.0f, g_winSize.d_width/2.0f,
+             -g_winSize.d_height/2.0f, g_winSize.d_height/2.0f,
+             g_winSize.d_near, g_winSize.d_far );
+
+  glUniformMatrix4fv(g_tfm.locP, 1, GL_FALSE, glm::value_ptr(Projection));
+  errorOut();
+}
+
+
+void display(void)
+{
+  glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+  // Instead of moving the coordinate system into the scene,
+  // use lookAt -- use the sun as the reference coordinates
+  glm::mat4 ModelView = glm::lookAt( glm::vec3(0, 0, -(g_winSize.d_far+g_winSize.d_near)/2.0f ),
+                                     glm::vec3(0, 0, 0),// at is the center of the cube
+                                     glm::vec3(0, 1.0f, 0 )); // y is up
+  glUniformMatrix4fv(g_tfm.locVM, 1, GL_FALSE, glm::value_ptr(ModelView));
+
+  // swap buffers
+  glFlush();
+  glutSwapBuffers();
+}
+
+
+/**
+ * OpenGL reshape function - main window
+ */
+void reshape( GLsizei _width, GLsizei _height ) {
+  GLfloat minDim = std::min(g_winSize.d_width,g_winSize.d_height);
+  // adjust the view volume to the correct aspect ratio
+  if ( _width > _height ) {
+    g_winSize.d_width = minDim  * (GLfloat)_width/(GLfloat)_height;
+    g_winSize.d_height = minDim;
+  } else {
+    g_winSize.d_width = minDim;
+    g_winSize.d_height = minDim * (GLfloat)_height/(GLfloat)_width;
+  }
+  glm::mat4 Projection;
+  if ( g_winSize.d_perspective ) {
+    Projection = glm::frustum( -g_winSize.d_width/2.0f, g_winSize.d_width/2.0f,
+                               -g_winSize.d_height/2.0f, g_winSize.d_height/2.0f,
+                               g_winSize.d_near, g_winSize.d_far );
+  } else {
+    Projection = glm::ortho( -g_winSize.d_width/2.0f, g_winSize.d_width/2.0f,
+                             -g_winSize.d_height/2.0f, g_winSize.d_height/2.0f,
+                             g_winSize.d_near, g_winSize.d_far );
+  }
+  glUniformMatrix4fv(g_tfm.locP, 1, GL_FALSE, glm::value_ptr(Projection));
+  g_winSize.d_widthPixel = _width;
+  g_winSize.d_heightPixel = _height;
+  // reshape our viewport
+  glViewport( 0, 0,
+              g_winSize.d_widthPixel,
+              g_winSize.d_heightPixel );
+}
+
+
+void keyboard (unsigned char key, int x, int y)
+{
+  switch (key) {
+    case 27:
+    case 'q':
+      exit(0);
+      break;
+    default:
+      break;
+  }
+  glutPostRedisplay();
+}
+
+}
+
+int main(int argc, char **argv)
+{
+  glutInit(&argc, argv);
+  glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+  glutInitWindowSize (800, 600);
+  glutInitWindowPosition (0, 0);
+  glutCreateWindow (argv[0]);
+  GLenum err = glewInit();
+  if (GLEW_OK != err) {
+    /* Problem: glewInit failed, something is seriously wrong. */
+    cerr << "Error: " << glewGetErrorString(err) << endl;
+    return -1;
+  }
+  cerr << "Using GLEW " << glewGetString(GLEW_VERSION) << endl;
+  cerr << "Before init" << endl;
+  init();
+  cerr << "After init" << endl;
+  init();
+  glutReshapeFunc(reshape);
+  glutDisplayFunc(display);
+  glutKeyboardFunc(keyboard);
+  glutMainLoop();
+  return 0;
+}
+

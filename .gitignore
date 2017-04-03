@@ -1,0 +1,23 @@
+# Ignore generate make/cmake files
+CMakeFiles/*
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Ignore binary
+lattice
+
+# Vim .swp files
+*.swp
+
+# Python files for cylinder generation
+*.pyc
+__pycache__
+
+# plist from clang
+*.plist/
+
+*ycm_extra_conf.py
+
+# Binary
+main
