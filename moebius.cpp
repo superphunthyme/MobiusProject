@@ -262,5 +262,3 @@ const GLushort MoebiusStrip::g_index[] = {
 };
 
 const int MoebiusStrip::g_nIndices = 360;
-
-const int MoebiusStrip::g_nTriangles = 120;

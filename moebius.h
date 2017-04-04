@@ -21,8 +21,6 @@ private:
 const static int g_nPoints;
 const static int g_nIndices;
 
-const static int g_nTriangles;
-
 public:
 
 // indexed specification
@@ -38,9 +36,6 @@ inline int getNPoints() const;
 inline glm::vec3 getVertex( int _num ) const;
 inline int getNIndices() const;
 inline GLushort getIndex( int _num ) const;
-
-// direct drawing
-inline int getNTriangles() const;
 
 private:
 // no copy or assignment
@@ -70,10 +65,6 @@ int MoebiusStrip::getNIndices() const {
 GLushort MoebiusStrip::getIndex( int _num ) const {
   assert( _num < g_nIndices );
   return g_index[_num];
-}
-
-inline int MoebiusStrip::getNTriangles() const {
-  return g_nTriangles;
 }
 
 #endif
