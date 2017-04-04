@@ -20,10 +20,13 @@ __pycache__
 *ycm_extra_conf.py
 
 # Binary
-main
+final_project
 
 # PDFs
 *pdf
 
 # Plan for project
 plan.rst
+
+# Apitrace files
+*.trace

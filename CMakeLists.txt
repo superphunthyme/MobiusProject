@@ -11,7 +11,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODUL_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 message("Module path: ${CMAKE_MODULE_PATH}")
 
 # define the project name
-set(project_name "objMesh")
+set(project_name "final_project")
 project("${project_name}")
 
 # display the project name when cmake is run

@@ -113,12 +113,12 @@ void init(void)
   vector<GLuint> sHandles;
   GLuint handle;
   Shader boxes;
-  if ( !boxes.load("lattice.vs", GL_VERTEX_SHADER )) {
+  if ( !boxes.load("final.vs", GL_VERTEX_SHADER )) {
     boxes.installShader( handle, GL_VERTEX_SHADER );
     Shader::compile( handle );
     sHandles.push_back( handle );
   }
-  if ( !boxes.load("lattice.fs", GL_FRAGMENT_SHADER )) {
+  if ( !boxes.load("final.fs", GL_FRAGMENT_SHADER )) {
     boxes.installShader( handle, GL_FRAGMENT_SHADER );
     Shader::compile( handle );
     sHandles.push_back( handle );
