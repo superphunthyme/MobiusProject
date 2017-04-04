@@ -39,6 +39,16 @@ struct WindowSize {
   {
   }
 };
+struct ControlParameter {
+    bool d_spot;
+    bool d_attenuation;
+    GLint d_startX,d_startY;
+    glm::mat4 d_rotMatrix;
+    ControlParameter() : d_spot(false), d_attenuation(false),
+    d_startX(0), d_startY(0) {
+    }
+};
+
 
 struct Transformations {
   GLint locP;
@@ -56,6 +66,7 @@ struct Attributes {
 };
 
 /** Global variables */
+ControlParameter g_control;
 MoebiusStrip moebiusShape;
 Attributes g_attrib;
 WindowSize g_winSize;
@@ -64,6 +75,48 @@ Transformations g_tfm;
 GLuint g_moebiusvao;
 GLuint g_moebiusebo;
 GLuint g_moebiusvbo;
+
+  /**
+   * Rotates the model around x and y axis
+   */
+void rotateModel( int _x, int _y ) {
+    // static GLfloat angleX = 0.0f, angleY = 0.0f;
+    float angleX = static_cast<GLfloat>(_x - g_control.d_startX)/50.0f;
+    float angleY = -static_cast<GLfloat>(_y - g_control.d_startY)/50.0f;
+    // cerr << "Angle X: " << angleX << endl;
+    // cerr << "Angle Y: " << angleY << endl;
+    // Rotation matrix assembly
+    // rotate around current y and x
+    glm::vec3 rX = glm::vec3( g_control.d_rotMatrix[0].y,
+            g_control.d_rotMatrix[1].y,
+            g_control.d_rotMatrix[2].y);
+    glm::vec3 rY = glm::vec3( g_control.d_rotMatrix[0].x,
+            g_control.d_rotMatrix[1].x,
+            g_control.d_rotMatrix[2].x);
+    g_control.d_rotMatrix =
+        glm::rotate(g_control.d_rotMatrix, angleY, rY );
+    g_control.d_rotMatrix =
+        glm::rotate(g_control.d_rotMatrix, angleX, rX);
+    g_control.d_startX = _x;
+    g_control.d_startY = _y;
+    glutPostRedisplay();
+}
+
+
+/**
+ *     Mouse function callback - called on a mouse event
+ *       */
+void trackball( int _button, int _state, int _x, int _y ) {
+    if ( _button == GLUT_LEFT_BUTTON && _state == GLUT_DOWN ) {
+        g_control.d_startX = _x;
+        g_control.d_startY = _y;
+        glutMotionFunc(rotateModel);
+    }
+    if ( _button == GLUT_LEFT_BUTTON && _state == GLUT_UP ) {
+        glutMotionFunc(NULL);
+    }
+    glutPostRedisplay();
+}
 
 
 void createMoebiusStrip(void) {
@@ -90,13 +143,13 @@ void createMoebiusStrip(void) {
   glVertexAttribPointer(g_attrib.locPos, 3, GL_FLOAT, GL_FALSE, 0, 0 );
   glEnableVertexAttribArray(g_attrib.locPos);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glBindVertexArray(0); 
+  glBindVertexArray(0);
   errorOut();
 }
 
 void init(void)
 {
-  glClearColor (0.5, 0.5, 0.5, 0.0);
+  glClearColor (0.5, 0.5, 0.5, 1.0);
   glEnable( GL_DEPTH_TEST );
   errorOut();
 
@@ -135,7 +188,7 @@ void init(void)
   g_attrib.locPos = glGetAttribLocation(program, "position");
   g_attrib.locColor = glGetAttribLocation(program, "color");
   // transform uniforms and attributes
-  g_tfm.locMM = glGetAttribLocation( program, "ModelMatrix");
+  g_tfm.locMM = glGetUniformLocation( program, "ModelMatrix");
   g_tfm.locVM = glGetUniformLocation( program, "ViewMatrix");
   g_tfm.locP = glGetUniformLocation( program, "ProjectionMatrix");
   errorOut();
@@ -158,13 +211,16 @@ void display(void)
 
   // Instead of moving the coordinate system into the scene,
   // use lookAt -- use the sun as the reference coordinates
-  glm::mat4 ModelView = glm::lookAt( glm::vec3(0, 0, -(g_winSize.d_far+g_winSize.d_near)/2.0f ),
+  glm::mat4 ViewMatrix = glm::lookAt( glm::vec3(0, 0, -(g_winSize.d_far+g_winSize.d_near)/2.0f ),
                                      glm::vec3(0, 0, 0),// at is the center of the cube
                                      glm::vec3(0, 1.0f, 0 )); // y is up
-  glUniformMatrix4fv(g_tfm.locVM, 1, GL_FALSE, glm::value_ptr(ModelView));
+  glUniformMatrix4fv(g_tfm.locVM, 1, GL_FALSE, glm::value_ptr(ViewMatrix));
+
+  glUniformMatrix4fv(g_tfm.locMM, 1, GL_FALSE, glm::value_ptr(g_control.d_rotMatrix));
 
   glBindVertexArray(g_moebiusvao);
   glDrawElements(GL_TRIANGLES, moebiusShape.getNIndices(), GL_UNSIGNED_SHORT, 0);
+  glBindVertexArray(0);
 
   // swap buffers
   glFlush();
@@ -237,6 +293,7 @@ int main(int argc, char **argv)
   cerr << "Before init" << endl;
   init();
   cerr << "After init" << endl;
+  glutMouseFunc(trackball);
   glutReshapeFunc(reshape);
   glutDisplayFunc(display);
   glutKeyboardFunc(keyboard);
