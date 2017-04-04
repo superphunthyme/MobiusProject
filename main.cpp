@@ -49,7 +49,7 @@ struct Transformations {
 };
 
 struct Attributes {
-  GLint locPos;
+  GLuint locPos;
   GLint locColor;
   Attributes() : locPos(-1), locColor(-1) {
   }
@@ -61,14 +61,42 @@ Attributes g_attrib;
 WindowSize g_winSize;
 GLuint camera;
 Transformations g_tfm;
+GLuint g_moebiusvao;
+GLuint g_moebiusebo;
+GLuint g_moebiusvbo;
 
 
 void createMoebiusStrip(void) {
+
+  glGenVertexArrays(1, &g_moebiusvao );
+  glGenBuffers(1, &g_moebiusvbo);
+  glGenBuffers(1, &g_moebiusebo);
+
+  glBindVertexArray( g_moebiusvao );
+
+  glBindBuffer(GL_ARRAY_BUFFER, g_moebiusvbo );
+  glBufferData(GL_ARRAY_BUFFER,
+               sizeof(GLfloat) * 3 * moebiusShape.getNPoints(),
+               moebiusShape.g_vertex, GL_STATIC_DRAW);
+
+  // Element array buffer object
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_moebiusebo );
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+               sizeof(GLushort) * moebiusShape.getNIndices(),
+               moebiusShape.g_index, GL_STATIC_DRAW );
+  errorOut();
+
+  // pointer into the array of vertices which is now in the VAO
+  glVertexAttribPointer(g_attrib.locPos, 3, GL_FLOAT, GL_FALSE, 0, 0 );
+  glEnableVertexAttribArray(g_attrib.locPos);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindVertexArray(0); 
+  errorOut();
 }
 
 void init(void)
 {
-  glClearColor (0.0, 0.0, 0.0, 0.0);
+  glClearColor (0.5, 0.5, 0.5, 0.0);
   glEnable( GL_DEPTH_TEST );
   errorOut();
 
@@ -113,10 +141,13 @@ void init(void)
   errorOut();
 
   glm::mat4 Projection = glm::ortho( -g_winSize.d_width/2.0f, g_winSize.d_width/2.0f,
-             -g_winSize.d_height/2.0f, g_winSize.d_height/2.0f,
-             g_winSize.d_near, g_winSize.d_far );
+                                     -g_winSize.d_height/2.0f, g_winSize.d_height/2.0f,
+                                     g_winSize.d_near, g_winSize.d_far );
 
   glUniformMatrix4fv(g_tfm.locP, 1, GL_FALSE, glm::value_ptr(Projection));
+
+  createMoebiusStrip();
+
   errorOut();
 }
 
@@ -131,6 +162,9 @@ void display(void)
                                      glm::vec3(0, 0, 0),// at is the center of the cube
                                      glm::vec3(0, 1.0f, 0 )); // y is up
   glUniformMatrix4fv(g_tfm.locVM, 1, GL_FALSE, glm::value_ptr(ModelView));
+
+  glBindVertexArray(g_moebiusvao);
+  glDrawElements(GL_TRIANGLES, moebiusShape.getNIndices(), GL_UNSIGNED_SHORT, 0);
 
   // swap buffers
   glFlush();
@@ -203,7 +237,6 @@ int main(int argc, char **argv)
   cerr << "Before init" << endl;
   init();
   cerr << "After init" << endl;
-  init();
   glutReshapeFunc(reshape);
   glutDisplayFunc(display);
   glutKeyboardFunc(keyboard);

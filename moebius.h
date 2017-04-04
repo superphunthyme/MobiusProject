@@ -1,8 +1,6 @@
 #ifndef CSI4130_MOEBIUS_H_
 #define CSI4130_MOEBIUS_H_
 
-#define NUM_PRIMITIVES 2
-
 #include <cassert>
 #include <cstdlib> // Needed in windows for rand
 
@@ -24,9 +22,6 @@ const static int g_nPoints;
 const static int g_nIndices;
 
 const static int g_nTriangles;
-const static GLenum g_primitives[NUM_PRIMITIVES];
-
-static GLuint g_primitiveIndex;
 
 public:
 
@@ -46,9 +41,6 @@ inline GLushort getIndex( int _num ) const;
 
 // direct drawing
 inline int getNTriangles() const;
-
-GLenum getPrimitive();
-void togglePrimitives();
 
 private:
 // no copy or assignment

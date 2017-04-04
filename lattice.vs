@@ -11,8 +11,7 @@ uniform mat4 ProjectionMatrix;
 out vec4 colorVertFrag; // Pass the color on to rasterization
 
 void main() {
-  const vec4 vertColor = vec4( 0.0, 1.0, 0.0, 0.0 );	
   // map the vertex position into clipping space 
-  gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * position;
-  colorVertFrag = color;
+  gl_Position = ProjectionMatrix * ViewMatrix * position;
+  //colorVertFrag = color;
 }
