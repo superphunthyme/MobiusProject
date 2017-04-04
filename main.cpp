@@ -75,6 +75,7 @@ Transformations g_tfm;
 GLuint g_moebiusvao;
 GLuint g_moebiusebo;
 GLuint g_moebiusvbo;
+GLfloat MODEL_SCALE = 2.0f;
 
   /**
    * Rotates the model around x and y axis
@@ -219,7 +220,7 @@ void display(void)
   glUniformMatrix4fv(g_tfm.locMM, 1, GL_FALSE, glm::value_ptr(g_control.d_rotMatrix));
 
   glBindVertexArray(g_moebiusvao);
-  glDrawElements(GL_TRIANGLES, moebiusShape.getNIndices(), GL_UNSIGNED_SHORT, 0);
+  glDrawElements(GL_TRIANGLE_STRIP, moebiusShape.getNIndices(), GL_UNSIGNED_SHORT, 0);
   glBindVertexArray(0);
 
   // swap buffers
@@ -267,6 +268,12 @@ void keyboard (unsigned char key, int x, int y)
     case 27:
     case 'q':
       exit(0);
+      break;
+    case '+':
+      g_control.d_rotMatrix = glm::scale(g_control.d_rotMatrix, glm::vec3(MODEL_SCALE, MODEL_SCALE, MODEL_SCALE));
+      break;
+    case '-':
+      g_control.d_rotMatrix = glm::scale(g_control.d_rotMatrix, glm::vec3(1/MODEL_SCALE, 1/MODEL_SCALE, 1/MODEL_SCALE));
       break;
     default:
       break;
