@@ -133,9 +133,9 @@ void updateSphere() {
     int firstIndex = g_sphere.positionIndex;
     int secondIndex = (g_sphere.positionIndex + g_sphere.numPositions / 2) % g_sphere.numPositions;
     glm::vec3 height = moebiusShape.getUnitNormal(firstIndex, secondIndex, (firstIndex + 1) % 120, secondIndex);
-    height.x /= 5.0f;
-    height.y /= 5.0f;
-    height.z /= 5.0f;
+    height.x /= 4.4f;
+    height.y /= 4.4f;
+    height.z /= 4.4f;
 
     g_sphere.position = moebiusShape.getVertex(firstIndex) + moebiusShape.getVertex(secondIndex);
 
