@@ -14,7 +14,6 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "shader.h"
-#include "sphere.h"
 #include "moebius.h"
 
 using namespace CSI4130;

@@ -20,7 +20,7 @@ message("Project source dir: ${PROJECT_SOURCE_DIR}")
 # set c++ flags manually -- not needed here
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++11 -O0")
 
-add_executable(${project_name} main.cpp moebius.cpp sphere.cpp common/shader.cpp)
+add_executable(${project_name} main.cpp moebius.cpp common/shader.cpp)
 
 set(CMAKE_BUILD_TYPE Debug)
 
