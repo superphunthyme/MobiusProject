@@ -59,8 +59,10 @@ struct Transformations {
 
 struct Attributes {
   GLuint locPos;
-  GLint locColor;
-  Attributes() : locPos(-1), locColor(-1) {
+  GLuint locColor;
+  GLuint locNorm;
+  GLuint locLightPos;
+  Attributes() : locPos(-1), locColor(-1), locNorm(-1), locLightPos(-1) {
   }
 };
 
@@ -83,7 +85,9 @@ Transformations g_tfm;
 GLuint g_moebiusvao;
 GLuint g_moebiusebo;
 GLuint g_moebiusvbo;
+GLuint g_moebiusnbo;
 GLfloat MODEL_SCALE = 2.0f;
+glm::vec3 lightPos;
 
   /**
    * Rotates the model around x and y axis
@@ -143,6 +147,10 @@ void updateSphere() {
     g_sphere.position.z /= 2;
     g_sphere.position += height;
     g_sphere.positionIndex = (g_sphere.positionIndex + 1) % (g_sphere.numPositions);
+    //cerr << firstIndex <<"\n";
+    //cerr << moebiusShape.g_normal[3 * firstIndex] << "\t";
+    //cerr << moebiusShape.g_normal[3 * firstIndex + 1] << "\t";
+    //cerr << moebiusShape.g_normal[3 * firstIndex + 2] << "\n";
 };
 
 void createMoebiusStrip(void) {
@@ -150,9 +158,11 @@ void createMoebiusStrip(void) {
   glGenVertexArrays(1, &g_moebiusvao );
   glGenBuffers(1, &g_moebiusvbo);
   glGenBuffers(1, &g_moebiusebo);
+  glGenBuffers(1, &g_moebiusnbo);
 
   glBindVertexArray( g_moebiusvao );
 
+  // Vertics buffer object
   glBindBuffer(GL_ARRAY_BUFFER, g_moebiusvbo );
   glBufferData(GL_ARRAY_BUFFER,
                sizeof(GLfloat) * 3 * moebiusShape.getNPoints(),
@@ -163,11 +173,22 @@ void createMoebiusStrip(void) {
   glBufferData(GL_ELEMENT_ARRAY_BUFFER,
                sizeof(GLushort) * moebiusShape.getNIndices(),
                moebiusShape.g_index, GL_STATIC_DRAW );
-  errorOut();
-
   // pointer into the array of vertices which is now in the VAO
+  // Could have used same arrays for normals
   glVertexAttribPointer(g_attrib.locPos, 3, GL_FLOAT, GL_FALSE, 0, 0 );
   glEnableVertexAttribArray(g_attrib.locPos);
+
+  //  Normals buffer, not needed?
+  glBindBuffer(GL_ARRAY_BUFFER, g_moebiusnbo );
+  glBufferData(GL_ARRAY_BUFFER,
+               sizeof(GLfloat) * 3 * moebiusShape.getNNormals(),
+               moebiusShape.g_normal, GL_STATIC_DRAW );
+
+  glVertexAttribPointer(g_attrib.locNorm, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  glEnableVertexAttribArray(g_attrib.locNorm);
+
+  errorOut();
+
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindVertexArray(0);
   errorOut();
@@ -213,6 +234,8 @@ void init(void)
   // vertex attributes
   g_attrib.locPos = glGetAttribLocation(program, "position");
   g_attrib.locColor = glGetUniformLocation(program, "color");
+  g_attrib.locNorm = glGetAttribLocation(program, "normal");
+  g_attrib.locLightPos = glGetUniformLocation(program, "lightPos");
   // transform uniforms and attributes
   g_tfm.locMM = glGetUniformLocation( program, "ModelMatrix");
   g_tfm.locVM = glGetUniformLocation( program, "ViewMatrix");
@@ -228,6 +251,9 @@ void init(void)
   createMoebiusStrip();
   g_sphere.numPositions = moebiusShape.getNPoints();
   updateSphere();
+
+  lightPos = glm::vec3(1.0, 1.0, 0.0);
+  glUniform3f(g_attrib.locLightPos, lightPos.x, lightPos.y, lightPos.z);  
   errorOut();
 }
 
@@ -327,6 +353,7 @@ void idleFunc(int value)
 
 int main(int argc, char **argv)
 {
+  glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
   glutInit(&argc, argv);
   glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
   glutInitWindowSize (800, 600);

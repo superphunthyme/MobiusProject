@@ -35,6 +35,7 @@ inline ~MoebiusStrip();
 
 // indexed drawing
 inline int getNPoints() const;
+inline int getNNormals();
 inline glm::vec3 getVertex( int _num );
 inline int getNIndices() const;
 inline GLushort getIndex( int _num ) const;
@@ -48,7 +49,7 @@ MoebiusStrip& operator=( const MoebiusStrip& _oMoebiusStrips );
 };
 
 MoebiusStrip::MoebiusStrip() {
-    g_nNormals = 360;
+    g_nNormals = 120;
     calculateNormals();
 }
 
@@ -57,6 +58,10 @@ MoebiusStrip::~MoebiusStrip() {
 
 int MoebiusStrip::getNPoints() const {
   return g_nPoints;
+}
+
+int MoebiusStrip::getNNormals() {
+  return g_nNormals;
 }
 
 glm::vec3 MoebiusStrip::getVertex( int _num ) {
