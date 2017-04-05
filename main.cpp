@@ -66,8 +66,8 @@ struct Attributes {
 };
 
 struct SphereCoords {
-    GLushort numPositions;
-    GLushort positionIndex;
+    int numPositions;
+    int positionIndex;
     glm::vec3 position;
     SphereCoords() : numPositions(0), positionIndex(0), position(glm::vec3(0.0, 0.0, 0.0)) {
     }
@@ -130,17 +130,20 @@ void trackball( int _button, int _state, int _x, int _y ) {
 
 
 void updateSphere() {
-    glm::vec3 height = moebiusShape.getUnitNormal(g_sphere.positionIndex, g_sphere.positionIndex + 59);
-    height.x *= 1.5f;
-    height.y *= 1.5f;
-    height.z *= 1.5f;
+    int firstIndex = g_sphere.positionIndex;
+    int secondIndex = (g_sphere.positionIndex + g_sphere.numPositions / 2) % g_sphere.numPositions;
+    glm::vec3 height = moebiusShape.getUnitNormal(firstIndex, secondIndex, (firstIndex + 1) % 120, secondIndex);
+    height.x /= 5.0f;
+    height.y /= 5.0f;
+    height.z /= 5.0f;
 
-    g_sphere.position = moebiusShape.getVertex(g_sphere.positionIndex) + moebiusShape.getVertex(g_sphere.positionIndex + g_sphere.numPositions - 1) + height;
+    g_sphere.position = moebiusShape.getVertex(firstIndex) + moebiusShape.getVertex(secondIndex);
 
     g_sphere.position.x /= 2;
     g_sphere.position.y /= 2;
     g_sphere.position.z /= 2;
-    g_sphere.positionIndex = ++g_sphere.positionIndex % (g_sphere.numPositions);
+    g_sphere.position += height;
+    g_sphere.positionIndex = (g_sphere.positionIndex + 1) % (g_sphere.numPositions);
 };
 
 void createMoebiusStrip(void) {
@@ -224,7 +227,7 @@ void init(void)
   glUniformMatrix4fv(g_tfm.locP, 1, GL_FALSE, glm::value_ptr(Projection));
 
   createMoebiusStrip();
-  g_sphere.numPositions = moebiusShape.getNPoints() / 2;
+  g_sphere.numPositions = moebiusShape.getNPoints();
   updateSphere();
   errorOut();
 }

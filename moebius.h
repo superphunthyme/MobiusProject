@@ -36,7 +36,7 @@ inline int getNPoints() const;
 inline glm::vec3 getVertex( int _num );
 inline int getNIndices() const;
 inline GLushort getIndex( int _num ) const;
-glm::vec3 getUnitNormal(GLushort index1, GLushort index2);
+glm::vec3 getUnitNormal(int p1index1, int p1index2, int p2index1, int p2index2);
 
 private:
 // no copy or assignment
