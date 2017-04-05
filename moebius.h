@@ -33,9 +33,10 @@ inline ~MoebiusStrip();
 
 // indexed drawing
 inline int getNPoints() const;
-inline glm::vec3 getVertex( int _num ) const;
+inline glm::vec3 getVertex( int _num );
 inline int getNIndices() const;
 inline GLushort getIndex( int _num ) const;
+glm::vec3 getUnitNormal(GLushort index1, GLushort index2);
 
 private:
 // no copy or assignment
@@ -53,7 +54,7 @@ int MoebiusStrip::getNPoints() const {
   return g_nPoints;
 }
 
-glm::vec3 MoebiusStrip::getVertex( int _num ) const {
+glm::vec3 MoebiusStrip::getVertex( int _num ) {
   assert( _num < g_nPoints );
   return glm::vec3(g_vertex[_num*3],g_vertex[_num*3+1],g_vertex[_num*3+2]);
 }

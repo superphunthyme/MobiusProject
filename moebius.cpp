@@ -262,3 +262,7 @@ const GLushort MoebiusStrip::g_index[] = {
 };
 
 const int MoebiusStrip::g_nIndices = 360;
+
+glm::vec3 MoebiusStrip::getUnitNormal(GLushort index1, GLushort index2) {
+    return glm::normalize(glm::cross(getVertex(index1), getVertex(index2)));
+}

@@ -65,10 +65,19 @@ struct Attributes {
   }
 };
 
+struct SphereCoords {
+    GLushort numPositions;
+    GLushort positionIndex;
+    glm::vec3 position;
+    SphereCoords() : numPositions(0), positionIndex(0), position(glm::vec3(0.0, 0.0, 0.0)) {
+    }
+};
+
 /** Global variables */
 ControlParameter g_control;
 MoebiusStrip moebiusShape;
 Attributes g_attrib;
+SphereCoords g_sphere;
 WindowSize g_winSize;
 GLuint camera;
 Transformations g_tfm;
@@ -119,6 +128,20 @@ void trackball( int _button, int _state, int _x, int _y ) {
     glutPostRedisplay();
 }
 
+
+void updateSphere() {
+    glm::vec3 height = moebiusShape.getUnitNormal(g_sphere.positionIndex, g_sphere.positionIndex + 59);
+    height.x *= 1.5f;
+    height.y *= 1.5f;
+    height.z *= 1.5f;
+
+    g_sphere.position = moebiusShape.getVertex(g_sphere.positionIndex) + moebiusShape.getVertex(g_sphere.positionIndex + g_sphere.numPositions - 1) + height;
+
+    g_sphere.position.x /= 2;
+    g_sphere.position.y /= 2;
+    g_sphere.position.z /= 2;
+    g_sphere.positionIndex = ++g_sphere.positionIndex % (g_sphere.numPositions);
+};
 
 void createMoebiusStrip(void) {
 
@@ -187,7 +210,7 @@ void init(void)
   errorOut();
   // vertex attributes
   g_attrib.locPos = glGetAttribLocation(program, "position");
-  g_attrib.locColor = glGetAttribLocation(program, "color");
+  g_attrib.locColor = glGetUniformLocation(program, "color");
   // transform uniforms and attributes
   g_tfm.locMM = glGetUniformLocation( program, "ModelMatrix");
   g_tfm.locVM = glGetUniformLocation( program, "ViewMatrix");
@@ -201,7 +224,8 @@ void init(void)
   glUniformMatrix4fv(g_tfm.locP, 1, GL_FALSE, glm::value_ptr(Projection));
 
   createMoebiusStrip();
-
+  g_sphere.numPositions = moebiusShape.getNPoints() / 2;
+  updateSphere();
   errorOut();
 }
 
@@ -209,6 +233,12 @@ void init(void)
 void display(void)
 {
   glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+  glm::mat4 sphereModel = glm::translate(g_control.d_rotMatrix, g_sphere.position);
+  glUniformMatrix4fv(g_tfm.locMM, 1, GL_FALSE, glm::value_ptr(sphereModel));
+  // Set color to Green
+  glUniform4f(g_attrib.locColor, 0.0f, 1.0f, 0.0f, 1.0f);
+  // Instead of moving the coordinate system into the scene,
+  glutSolidSphere(0.2, 20, 16);
 
   // Instead of moving the coordinate system into the scene,
   // use lookAt -- use the sun as the reference coordinates
@@ -218,6 +248,9 @@ void display(void)
   glUniformMatrix4fv(g_tfm.locVM, 1, GL_FALSE, glm::value_ptr(ViewMatrix));
 
   glUniformMatrix4fv(g_tfm.locMM, 1, GL_FALSE, glm::value_ptr(g_control.d_rotMatrix));
+
+  // Set color to Red
+  glUniform4f(g_attrib.locColor, 1.0f, 0.0f, 0.0f, 1.0f);
 
   glBindVertexArray(g_moebiusvao);
   glDrawElements(GL_TRIANGLE_STRIP, moebiusShape.getNIndices(), GL_UNSIGNED_SHORT, 0);
@@ -283,6 +316,13 @@ void keyboard (unsigned char key, int x, int y)
 
 }
 
+void idleFunc(int value)
+{
+    glutTimerFunc(60, idleFunc, 0);
+    updateSphere();
+    glutPostRedisplay();
+}
+
 int main(int argc, char **argv)
 {
   glutInit(&argc, argv);
@@ -304,6 +344,7 @@ int main(int argc, char **argv)
   glutReshapeFunc(reshape);
   glutDisplayFunc(display);
   glutKeyboardFunc(keyboard);
+  glutTimerFunc(60, idleFunc, 0);
   glutMainLoop();
   return 0;
 }
