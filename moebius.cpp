@@ -274,3 +274,15 @@ glm::vec3 MoebiusStrip::getUnitNormal(int p1index1, int p1index2, int p2index1, 
        return normal / glm::length(normal);
     }
 }
+
+
+// TODO Fix static/instance mess
+void MoebiusStrip::calculateNormals() {
+    for (int i = 0; i < g_nNormals; i = i + 3) {
+        glm::vec3 normal = getUnitNormal(g_index[i], g_index[i + 1], g_index[i + 1], g_index[i + 2]);
+        g_normal[i] = normal.x;
+        g_normal[i + 1] = normal.y;
+        g_normal[i + 2] = normal.z;
+    std::cerr << "Called: " << i <<"\n";
+    }
+}

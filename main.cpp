@@ -131,7 +131,7 @@ void trackball( int _button, int _state, int _x, int _y ) {
 void updateSphere() {
     int firstIndex = g_sphere.positionIndex;
     int secondIndex = (g_sphere.positionIndex + g_sphere.numPositions / 2) % g_sphere.numPositions;
-    glm::vec3 height = moebiusShape.getUnitNormal(firstIndex, secondIndex, (firstIndex + 1) % 120, secondIndex);
+    glm::vec3 height = moebiusShape.getUnitNormal(firstIndex, secondIndex, (firstIndex + 1) % g_sphere.numPositions, secondIndex);
     height.x /= 4.4f;
     height.y /= 4.4f;
     height.z /= 4.4f;

@@ -20,12 +20,14 @@ class MoebiusStrip {
 private:
 const static int g_nPoints;
 const static int g_nIndices;
+int g_nNormals;
 
 public:
 
 // indexed specification
 const static GLfloat g_vertex[];
 const static GLushort g_index[];
+GLfloat g_normal[360];
 
 public:
 inline MoebiusStrip();
@@ -39,12 +41,15 @@ inline GLushort getIndex( int _num ) const;
 glm::vec3 getUnitNormal(int p1index1, int p1index2, int p2index1, int p2index2);
 
 private:
+void calculateNormals();
 // no copy or assignment
 MoebiusStrip(const MoebiusStrip& _oMoebiusStrips );
 MoebiusStrip& operator=( const MoebiusStrip& _oMoebiusStrips );
 };
 
 MoebiusStrip::MoebiusStrip() {
+    g_nNormals = 360;
+    calculateNormals();
 }
 
 MoebiusStrip::~MoebiusStrip() {
