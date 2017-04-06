@@ -1,4 +1,4 @@
-\documentclass[11pt]{article}
+\documentclass[11pt, letterpaper]{article}
 
 \usepackage[usenames,dvipsnames]{color} % Required for custom colors
 
@@ -33,5 +33,33 @@ Isaac Gollish \hfill Student Number: 6847497\\
 \end{center}
 
 \hrule
+
+\section*{Purpose}
+The goal of this assignment was to make use of a number of methods learned in
+class, namely animation, lighting and texturing. Unfortunately, there was not
+enough time to finish the texturing, but it is hoped that this can be easily
+done.
+
+
+\section*{Brief description}
+
+The object seen in the screenshot is a Möbius strip, a non-orientable 2D
+surface. When animated, the green sphere rotates around the figure. There is a
+diffuse white light in the upper right corner of the viewing volume. The surface
+was created by scratch, as well as the calculation of the normals, the
+calculation of the lighting, and the path of the sphere (although the sphere is
+using a one-line call to a GLUT method).
+
+There is a screenshot in \texttt{description/screenshot.png}.
+
+\section*{Issues}
+
+The zebra texture of the Möbius strip is actually unintentional and is due to
+some problems with calculating the normals. Commenting out the code for the
+normals buffer seems to restore the proper lighting, although it is not clear why
+exactly at the moment.
+
+Due to time constraints, texturing is not complete. If texturing the strip does
+not take long, it will be done.
 
 \end{document}
