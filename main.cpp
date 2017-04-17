@@ -281,7 +281,7 @@ void display(void)
   glUniform4f(g_attrib.locColor, 1.0f, 0.0f, 0.0f, 1.0f);
 
   glBindVertexArray(g_moebiusvao);
-  glDrawElements(GL_TRIANGLE_STRIP, moebiusShape.getNIndices(), GL_UNSIGNED_SHORT, 0);
+  glDrawElements(GL_TRIANGLES, moebiusShape.getNIndices(), GL_UNSIGNED_SHORT, 0);
   glBindVertexArray(0);
 
   // swap buffers
