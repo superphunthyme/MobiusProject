@@ -283,6 +283,5 @@ void MoebiusStrip::calculateNormals() {
         g_normal[i] = normal.x;
         g_normal[i + 1] = normal.y;
         g_normal[i + 2] = normal.z;
-    std::cerr << "Called: " << i  + 2<<"\n";
     }
 }
