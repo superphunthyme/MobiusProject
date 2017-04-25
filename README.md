@@ -32,4 +32,4 @@ Project description can be found inside the `description` directory
 
 ## Screenshot
 
-![Möbius strip with diffuse lighting](description/screenshot.png)
+![Möbius strip with diffuse lighting](description/screenshotdiffuse.png)
