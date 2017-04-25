@@ -179,13 +179,14 @@ void createMoebiusStrip(void) {
   glEnableVertexAttribArray(g_attrib.locPos);
 
   //  Normals buffer, not needed?
-  glBindBuffer(GL_ARRAY_BUFFER, g_moebiusnbo );
-  glBufferData(GL_ARRAY_BUFFER,
-               sizeof(GLfloat) * 3 * moebiusShape.getNNormals(),
-               moebiusShape.g_normal, GL_STATIC_DRAW );
-
-  glVertexAttribPointer(g_attrib.locNorm, 3, GL_FLOAT, GL_FALSE, 0, 0);
-  glEnableVertexAttribArray(g_attrib.locNorm);
+  //  FIXME, these should be calculated properly for the shader
+//  glBindBuffer(GL_ARRAY_BUFFER, g_moebiusnbo );
+//  glBufferData(GL_ARRAY_BUFFER,
+//               sizeof(GLfloat) * 3 * moebiusShape.getNNormals(),
+//               moebiusShape.g_normal, GL_STATIC_DRAW );
+//
+//  glVertexAttribPointer(g_attrib.locNorm, 3, GL_FLOAT, GL_FALSE, 0, 0);
+//  glEnableVertexAttribArray(g_attrib.locNorm);
 
   errorOut();
 
