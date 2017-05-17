@@ -39,13 +39,13 @@ struct WindowSize {
   }
 };
 struct ControlParameter {
-    bool d_spot;
-    bool d_attenuation;
-    GLint d_startX,d_startY;
-    glm::mat4 d_rotMatrix;
-    ControlParameter() : d_spot(false), d_attenuation(false),
+  bool d_spot;
+  bool d_attenuation;
+  GLint d_startX,d_startY;
+  glm::mat4 d_rotMatrix;
+  ControlParameter() : d_spot(false), d_attenuation(false),
     d_startX(0), d_startY(0) {
-    }
+  }
 };
 
 
@@ -67,11 +67,11 @@ struct Attributes {
 };
 
 struct SphereCoords {
-    int numPositions;
-    int positionIndex;
-    glm::vec3 position;
-    SphereCoords() : numPositions(0), positionIndex(0), position(glm::vec3(0.0, 0.0, 0.0)) {
-    }
+  int numPositions;
+  int positionIndex;
+  glm::vec3 position;
+  SphereCoords() : numPositions(0), positionIndex(0), position(glm::vec3(0.0, 0.0, 0.0)) {
+  }
 };
 
 /** Global variables */
@@ -89,30 +89,30 @@ GLuint g_moebiusnbo;
 GLfloat MODEL_SCALE = 2.0f;
 glm::vec3 lightPos;
 
-  /**
-   * Rotates the model around x and y axis
-   */
+/**
+ * Rotates the model around x and y axis
+ */
 void rotateModel( int _x, int _y ) {
-    // static GLfloat angleX = 0.0f, angleY = 0.0f;
-    float angleX = static_cast<GLfloat>(_x - g_control.d_startX)/50.0f;
-    float angleY = -static_cast<GLfloat>(_y - g_control.d_startY)/50.0f;
-    // cerr << "Angle X: " << angleX << endl;
-    // cerr << "Angle Y: " << angleY << endl;
-    // Rotation matrix assembly
-    // rotate around current y and x
-    glm::vec3 rX = glm::vec3( g_control.d_rotMatrix[0].y,
-            g_control.d_rotMatrix[1].y,
-            g_control.d_rotMatrix[2].y);
-    glm::vec3 rY = glm::vec3( g_control.d_rotMatrix[0].x,
-            g_control.d_rotMatrix[1].x,
-            g_control.d_rotMatrix[2].x);
-    g_control.d_rotMatrix =
-        glm::rotate(g_control.d_rotMatrix, angleY, rY );
-    g_control.d_rotMatrix =
-        glm::rotate(g_control.d_rotMatrix, angleX, rX);
-    g_control.d_startX = _x;
-    g_control.d_startY = _y;
-    glutPostRedisplay();
+  // static GLfloat angleX = 0.0f, angleY = 0.0f;
+  float angleX = static_cast<GLfloat>(_x - g_control.d_startX)/50.0f;
+  float angleY = -static_cast<GLfloat>(_y - g_control.d_startY)/50.0f;
+  // cerr << "Angle X: " << angleX << endl;
+  // cerr << "Angle Y: " << angleY << endl;
+  // Rotation matrix assembly
+  // rotate around current y and x
+  glm::vec3 rX = glm::vec3( g_control.d_rotMatrix[0].y,
+                            g_control.d_rotMatrix[1].y,
+                            g_control.d_rotMatrix[2].y);
+  glm::vec3 rY = glm::vec3( g_control.d_rotMatrix[0].x,
+                            g_control.d_rotMatrix[1].x,
+                            g_control.d_rotMatrix[2].x);
+  g_control.d_rotMatrix =
+    glm::rotate(g_control.d_rotMatrix, angleY, rY );
+  g_control.d_rotMatrix =
+    glm::rotate(g_control.d_rotMatrix, angleX, rX);
+  g_control.d_startX = _x;
+  g_control.d_startY = _y;
+  glutPostRedisplay();
 }
 
 
@@ -120,37 +120,37 @@ void rotateModel( int _x, int _y ) {
  *     Mouse function callback - called on a mouse event
  *       */
 void trackball( int _button, int _state, int _x, int _y ) {
-    if ( _button == GLUT_LEFT_BUTTON && _state == GLUT_DOWN ) {
-        g_control.d_startX = _x;
-        g_control.d_startY = _y;
-        glutMotionFunc(rotateModel);
-    }
-    if ( _button == GLUT_LEFT_BUTTON && _state == GLUT_UP ) {
-        glutMotionFunc(NULL);
-    }
-    glutPostRedisplay();
+  if ( _button == GLUT_LEFT_BUTTON && _state == GLUT_DOWN ) {
+    g_control.d_startX = _x;
+    g_control.d_startY = _y;
+    glutMotionFunc(rotateModel);
+  }
+  if ( _button == GLUT_LEFT_BUTTON && _state == GLUT_UP ) {
+    glutMotionFunc(NULL);
+  }
+  glutPostRedisplay();
 }
 
 
 void updateSphere() {
-    int firstIndex = g_sphere.positionIndex;
-    int secondIndex = (g_sphere.positionIndex + g_sphere.numPositions / 2) % g_sphere.numPositions;
-    glm::vec3 height = moebiusShape.getUnitNormal(firstIndex, secondIndex, (firstIndex + 1) % g_sphere.numPositions, secondIndex);
-    height.x /= 4.4f;
-    height.y /= 4.4f;
-    height.z /= 4.4f;
+  int firstIndex = g_sphere.positionIndex;
+  int secondIndex = (g_sphere.positionIndex + g_sphere.numPositions / 2) % g_sphere.numPositions;
+  glm::vec3 height = moebiusShape.getUnitNormal(firstIndex, secondIndex, (firstIndex + 1) % g_sphere.numPositions, secondIndex);
+  height.x /= 4.4f;
+  height.y /= 4.4f;
+  height.z /= 4.4f;
 
-    g_sphere.position = moebiusShape.getVertex(firstIndex) + moebiusShape.getVertex(secondIndex);
+  g_sphere.position = moebiusShape.getVertex(firstIndex) + moebiusShape.getVertex(secondIndex);
 
-    g_sphere.position.x /= 2;
-    g_sphere.position.y /= 2;
-    g_sphere.position.z /= 2;
-    g_sphere.position += height;
-    g_sphere.positionIndex = (g_sphere.positionIndex + 1) % (g_sphere.numPositions);
-    //cerr << firstIndex <<"\n";
-    //cerr << moebiusShape.g_normal[3 * firstIndex] << "\t";
-    //cerr << moebiusShape.g_normal[3 * firstIndex + 1] << "\t";
-    //cerr << moebiusShape.g_normal[3 * firstIndex + 2] << "\n";
+  g_sphere.position.x /= 2;
+  g_sphere.position.y /= 2;
+  g_sphere.position.z /= 2;
+  g_sphere.position += height;
+  g_sphere.positionIndex = (g_sphere.positionIndex + 1) % (g_sphere.numPositions);
+  //cerr << firstIndex <<"\n";
+  //cerr << moebiusShape.g_normal[3 * firstIndex] << "\t";
+  //cerr << moebiusShape.g_normal[3 * firstIndex + 1] << "\t";
+  //cerr << moebiusShape.g_normal[3 * firstIndex + 2] << "\n";
 };
 
 void createMoebiusStrip(void) {
@@ -254,7 +254,7 @@ void init(void)
   updateSphere();
 
   lightPos = glm::vec3(1.0, 1.0, 0.0);
-  glUniform3f(g_attrib.locLightPos, lightPos.x, lightPos.y, lightPos.z);  
+  glUniform3f(g_attrib.locLightPos, lightPos.x, lightPos.y, lightPos.z);
   errorOut();
 }
 
@@ -272,8 +272,8 @@ void display(void)
   // Instead of moving the coordinate system into the scene,
   // use lookAt -- use the sun as the reference coordinates
   glm::mat4 ViewMatrix = glm::lookAt( glm::vec3(0, 0, -(g_winSize.d_far+g_winSize.d_near)/2.0f ),
-                                     glm::vec3(0, 0, 0),// at is the center of the cube
-                                     glm::vec3(0, 1.0f, 0 )); // y is up
+                                      glm::vec3(0, 0, 0),// at is the center of the cube
+                                      glm::vec3(0, 1.0f, 0 )); // y is up
   glUniformMatrix4fv(g_tfm.locVM, 1, GL_FALSE, glm::value_ptr(ViewMatrix));
 
   glUniformMatrix4fv(g_tfm.locMM, 1, GL_FALSE, glm::value_ptr(g_control.d_rotMatrix));
@@ -357,9 +357,9 @@ void keyboard (unsigned char key, int x, int y)
 
 void idleFunc(int value)
 {
-    glutTimerFunc(60, idleFunc, 0);
-    updateSphere();
-    glutPostRedisplay();
+  glutTimerFunc(60, idleFunc, 0);
+  updateSphere();
+  glutPostRedisplay();
 }
 
 int main(int argc, char **argv)
