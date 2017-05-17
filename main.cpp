@@ -290,6 +290,24 @@ void display(void)
   glutSwapBuffers();
 }
 
+void updateProjectionMatrix() {
+  glm::mat4 Projection;
+  if ( g_winSize.d_perspective ) {
+    Projection = glm::frustum( -g_winSize.d_width/2.0f * MODEL_SCALE,
+                               g_winSize.d_width/2.0f * MODEL_SCALE,
+                               -g_winSize.d_height/2.0f * MODEL_SCALE,
+                               g_winSize.d_height/2.0f * MODEL_SCALE,
+                               g_winSize.d_near, g_winSize.d_far );
+  } else {
+    Projection = glm::ortho( -g_winSize.d_width/2.0f * MODEL_SCALE,
+                             g_winSize.d_width/2.0f * MODEL_SCALE,
+                             -g_winSize.d_height/2.0f * MODEL_SCALE,
+                             g_winSize.d_height/2.0f * MODEL_SCALE,
+                             g_winSize.d_near, g_winSize.d_far );
+  }
+  glUniformMatrix4fv(g_tfm.locP, 1, GL_FALSE, glm::value_ptr(Projection));
+}
+
 
 /**
  * OpenGL reshape function - main window
@@ -304,17 +322,7 @@ void reshape( GLsizei _width, GLsizei _height ) {
     g_winSize.d_width = minDim;
     g_winSize.d_height = minDim * (GLfloat)_height/(GLfloat)_width;
   }
-  glm::mat4 Projection;
-  if ( g_winSize.d_perspective ) {
-    Projection = glm::frustum( -g_winSize.d_width/2.0f, g_winSize.d_width/2.0f,
-                               -g_winSize.d_height/2.0f, g_winSize.d_height/2.0f,
-                               g_winSize.d_near, g_winSize.d_far );
-  } else {
-    Projection = glm::ortho( -g_winSize.d_width/2.0f, g_winSize.d_width/2.0f,
-                             -g_winSize.d_height/2.0f, g_winSize.d_height/2.0f,
-                             g_winSize.d_near, g_winSize.d_far );
-  }
-  glUniformMatrix4fv(g_tfm.locP, 1, GL_FALSE, glm::value_ptr(Projection));
+  updateProjectionMatrix();
   g_winSize.d_widthPixel = _width;
   g_winSize.d_heightPixel = _height;
   // reshape our viewport
@@ -332,10 +340,12 @@ void keyboard (unsigned char key, int x, int y)
       exit(0);
       break;
     case '+':
-      g_control.d_rotMatrix = glm::scale(g_control.d_rotMatrix, glm::vec3(MODEL_SCALE, MODEL_SCALE, MODEL_SCALE));
+      MODEL_SCALE *= 2.0/3.0;
+      updateProjectionMatrix();
       break;
     case '-':
-      g_control.d_rotMatrix = glm::scale(g_control.d_rotMatrix, glm::vec3(1/MODEL_SCALE, 1/MODEL_SCALE, 1/MODEL_SCALE));
+      MODEL_SCALE *= 3.0/2.0;
+      updateProjectionMatrix();
       break;
     default:
       break;
